@@ -12,6 +12,14 @@ export default function Auth() {
     const [telNumber, setTelNumber] = useState<string>('');
     const [authNumber, setAuthNumber] = useState<string>('');
 
+    const [nameMessage, setNameMessage] = useState<string>('');
+    const [idMessage, setIdMessage] = useState<string>('');
+    const [passwordMessage, setPasswordMessage] = useState<string>('');
+    const [passwordCheckMessage, setPasswordCheckMessage] = useState<string>('');
+    const [telNumberMessage, setTelNumberMessage] = useState<string>('');
+    const [authNumberMessage, setAuthNumberMessage] = useState<string>('');
+
+
     const onNameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
         const { value } = event.target;
         setName(value);
@@ -25,11 +33,24 @@ export default function Auth() {
     const onPasswordChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
         const { value } = event.target;
         setPassword(value);
+
+        const pattern = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,13}$/;
+        const isMatched = pattern.test(value);
+
+        const message = isMatched ? '' : '영문, 숫자를 혼용하여 8~13자 입력해주세요';
+        setPasswordMessage(message);
+        setPasswordCheckMessageError(!isMatched);
     };
 
     const onPasswordCheckChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
         const { value } = event.target;
         setPasswordCheck(value);
+
+        const isMatched = value === password;
+        const message = isMatched ? '' : '비밀번호가 일치하지 않습니다.';
+
+        setPasswordCheckMessage(message);
+        setPasswordCheckMessageError(!isMatched);
     };
 
     const onTelNumberChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
@@ -41,10 +62,29 @@ export default function Auth() {
         const { value } = event.target;
         setAuthNumber(value);
     };
+    const [nameMessageError, setNameMessageError] = useState<boolean>(false);
+    const [idMessageError, setIdMessageError] = useState<boolean>(false);
+    const [passwordMessageError, setPasswordMessageError] = useState<boolean>(false);
+    const [passwordCheckMessageError, setPasswordCheckMessageError] = useState<boolean>(false);
+    const [telNumberMessageError, setTelNumberMessageError] = useState<boolean>(false);
+    const [authNumberMessageError, setAuthNumberMessageError] = useState<boolean>(false);
 
-    const onIdCheckClickHandler = () => { if (!id) return;  alert('아이디 중복체크'); };
-    const onTelNumberSendClickHandler = () => { if (!telNumber) return;  alert('인증번호 전송'); };
-    const onAuthNumberCheckClickHandler = () => { if (!authNumber) return;  alert('인증번호 확인'); };
+    const onIdCheckClickHandler = () => {
+        if (!id) return;
+        const isDuplicated = id === 'qwer1234';
+        const message = isDuplicated ? '중복된 ID입니다.' : '사용할 수 있는 ID입니다.';
+        setIdMessage(message);
+        setIdMessageError(isDuplicated);
+        
+    };
+    const onTelNumberSendClickHandler = () => {
+        if (!telNumber) return;
+        alert('인증번호 전송');
+    };
+    const onAuthNumberCheckClickHandler = () => {
+        if (!authNumber) return;
+        alert('인증번호 확인');
+    };
 
 
     return (
@@ -66,12 +106,12 @@ export default function Auth() {
                     <div style={{ width: '64px' }} className="divider"></div>
 
                     <div className="input-container">
-                        <InputBox label='이름' type='text' placeholder='이름을 입력해주세요.' value={name} onChange={onNameChangeHandler}/>
-                        <InputBox label='아이디' type='text' placeholder='아이디를 입력해주세요.' buttonName='중복 확인' value={id} onChange={onIdChangeHandler} onButtonClick={onIdCheckClickHandler}/>
-                        <InputBox label='비밀번호' type='password' placeholder='비밀번호를 입력해주세요.' value={password} onChange={onPasswordChangeHandler}/>
-                        <InputBox label='비밀번호 확인' type='password' placeholder='비밀번호를 입력해주세요.' value={passwordCheck} onChange={onPasswordCheckChangeHandler}/>
-                        <InputBox label='전화번호' type='text' placeholder='-빼고 입력해주세요.' buttonName='전화번호 인증' value={telNumber} onChange={onTelNumberChangeHandler} onButtonClick={onTelNumberSendClickHandler}/>
-                        <InputBox label='인증번호' type='text' placeholder='인증번호 4자리를 입력해주세요.' buttonName='인증 확인' value={authNumber} onChange={onAuthNumberChangeHandler} onButtonClick={onAuthNumberCheckClickHandler}/>
+                        <InputBox messageError={nameMessageError} message={nameMessage} label='이름' type='text' placeholder='이름을 입력해주세요.' value={name} onChange={onNameChangeHandler}/>
+                        <InputBox messageError={idMessageError } message={idMessage } label='아이디' type='text' placeholder='아이디를 입력해주세요.' buttonName='중복 확인' value={id} onChange={onIdChangeHandler} onButtonClick={onIdCheckClickHandler}/>
+                        <InputBox messageError={passwordMessageError } message={passwordMessage } label='비밀번호' type='text' placeholder='비밀번호를 입력해주세요.' value={password} onChange={onPasswordChangeHandler}/>
+                        <InputBox messageError={passwordCheckMessageError} message={passwordCheckMessage} label='비밀번호 확인' type='text' placeholder='비밀번호를 입력해주세요.' value={passwordCheck} onChange={onPasswordCheckChangeHandler}/>
+                        <InputBox messageError={telNumberMessageError } message={telNumberMessage } label='전화번호' type='text' placeholder='-빼고 입력해주세요.' buttonName='전화번호 인증' value={telNumber} onChange={onTelNumberChangeHandler} onButtonClick={onTelNumberSendClickHandler}/>
+                        <InputBox messageError={authNumberMessageError } message={authNumberMessage } label='인증번호' type='text' placeholder='인증번호 4자리를 입력해주세요.' buttonName='인증 확인' value={authNumber} onChange={onAuthNumberChangeHandler} onButtonClick={onAuthNumberCheckClickHandler}/>
                     </div>
 
                     <div className="button-container">
