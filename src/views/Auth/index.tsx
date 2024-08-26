@@ -34,33 +34,61 @@ export default function Auth() {
         const { value } = event.target;
         setPassword(value);
 
+        
+
         const pattern = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,13}$/;
         const isMatched = pattern.test(value);
 
-        const message = isMatched ? '' : '영문, 숫자를 혼용하여 8~13자 입력해주세요';
+        const message = !value ? '' : isMatched ? '' : '영문, 숫자를 혼용하여 8~13자 입력해주세요';
         setPasswordMessage(message);
-        setPasswordCheckMessageError(!isMatched);
+        setPasswordMessageError(!isMatched);
+
+        if (!passwordCheck) return;
+
+        const isEqual = passwordCheck === value;
+        const checkMessage = isEqual ? '' : '비밀번호가 일치하지 않습니다.';
+        setPasswordCheckMessage(checkMessage);
+        setPasswordCheckMessageError(!isEqual)
     };
 
     const onPasswordCheckChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
         const { value } = event.target;
         setPasswordCheck(value);
 
-        const isMatched = value === password;
-        const message = isMatched ? '' : '비밀번호가 일치하지 않습니다.';
+        if (!password) return;
+
+        const isEqual = value === password;
+        const message = isEqual ? '' : '비밀번호가 일치하지 않습니다.';
 
         setPasswordCheckMessage(message);
-        setPasswordCheckMessageError(!isMatched);
+        setPasswordCheckMessageError(!isEqual);
     };
 
     const onTelNumberChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
         const { value } = event.target;
         setTelNumber(value);
+
+        const pattern = /^[0-9]{11}$/;
+        const isMatched = pattern.test(value);
+        const message = !value ? '' : isMatched ? '' : '숫자 11자 입력해주세요';
+        setTelNumberMessage(message);
+        setTelNumberMessageError(!isMatched);
+        
     };
 
     const onAuthNumberChangeHandler = (event: ChangeEvent<HTMLInputElement>) => { 
         const { value } = event.target;
         setAuthNumber(value);
+
+        const pattern = /^[0-9]{4}$/;
+        const isMatched = pattern.test(value);
+        
+        
+
+        const isEqual = value === '2684';
+        const messageCheck = !value ? '' : isEqual ? '' : '인증번호가 일치하지 않습니다.';
+        setAuthNumberMessage(messageCheck);
+        setAuthNumberMessageError(!isEqual);
     };
     const [nameMessageError, setNameMessageError] = useState<boolean>(false);
     const [idMessageError, setIdMessageError] = useState<boolean>(false);
