@@ -229,9 +229,9 @@ function SignIn({ onPathChange }: AuthComponentProps) {
         setMessage('');
     }, [id, password]);
 
-    return (
+    return ( 
         <div className="auth-box">
-            <div className="title-box">
+            <div className="title-box"> 
                 <div className="title">시니케어</div>
                 <div className="logo"></div>
             </div>
