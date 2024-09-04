@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Senicare.css';
 import Auth from 'src/views/Auth';
+import { Route, Routes } from 'react-router';
 
-export default function Senicare() {
+function Index() {
+
+  useEffect(() => {
+    // TODO: /auth로 경로 이동
+  }, []);
+
   return (
-    <>
-      
-      <Auth />
-    </>
+    <></>
   );
 }
 
-
+export default function Senicare() {
+  return (
+    <Routes>
+      <Route index element={<></>} />
+      <Route path='/auth' element={<Auth />} />
+    </Routes>
+  );
+}

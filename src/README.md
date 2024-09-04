@@ -7,7 +7,35 @@
 요양사를 위한 고객, 인사, 물자 관리 ERP 프로젝트
 
 #### package
-react-router, react-router-dom, 
+react-router, react-router-dom,  react-cookie, zustand, axios
+
+###### 패키지 설치
+```bash
+npm install
+```
+##### 개발모드 실행
+```bash
+npm run start
+```
+##### 빌드
+```bash
+npm run build
+```
+
+#### 네비게이션 구조
+**/auth** : 로그인 및 회원가입
+
+**/cs** : 고객 관리 ( 고객 리스트 보기 )
+**/cs/write**: 고객 등록
+**/cs/:customNumber** : 고객 상세 보기
+**/cs/:customNumber/update** : 고객 수정
+
+
+**/mm**  : 용품 관리 ( 용품 리스트 보기 )
+
+**/hr** : 인사 관리 ( 인사 리스트 보기 )
+**/hr/:userId** : 인사 정보 상세 보기
+**/hr/:userId/update** : 인사 정보 수정 하기
 
 ***
 
