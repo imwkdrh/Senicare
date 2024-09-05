@@ -1,8 +1,7 @@
-/* 
-*  Senicare 프로젝트의 공통 CSS
+/*
+*   Senicare 프로젝트의 공통 CSS
 */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Nanum+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 @font-face {
   font-family: 'Pretendard';
@@ -17,44 +16,14 @@
   --primary-20-color: rgba(0, 191, 122, 0.2);
   --error-color: rgba(255, 84, 64, 1);
   --gray-color: rgba(138, 146, 166, 1);
-  --drak-gray-color: rgba(64, 64, 64, 1);
+  --dark-gray-color: rgba(64, 64, 64, 1);
   --default-color: rgba(35, 45, 66, 1);
 }
 
-.body {
+body {
   margin: 0px;
   font-family: 'Pretendard', sans-serif;
 }
-
-.title-box {
-  display: flex;
-  align-items: center;
-
-  gap: 2px;
-}
-
-.title-box .title {
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 173%;
-
-  color: var(--drak-gray-color);
-}
-
-.title-box .logo {
-  width: 30px;
-  height: 30px;
-  background-image: url(/public/images/logo.png);
-  background-size: 100% 100%;
-}
-
-.input-container {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-self: stretch;
-}
-
 
 .message.error {
   color: var(--error-color);
@@ -68,13 +37,12 @@
   border-radius: 6px;
   padding: 8px 24px;
 
-
   font-size: 16px;
   font-weight: 400;
   line-height: 175%;
   text-align: center;
 
-  color: white;
+  color: rgba(255, 255, 255, 1);
 }
 
 .button:hover {
@@ -84,6 +52,11 @@
 
 .button.primary {
   background-color: var(--primary-color);
+}
+
+.button.second {
+  background-color: var(--primary-10-color);
+  color: var(--primary-color);
 }
 
 .button.disable {

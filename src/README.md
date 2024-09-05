@@ -37,6 +37,7 @@ npm run build
 **/hr/:userId** : 인사 정보 상세 보기
 **/hr/:userId/update** : 인사 정보 수정 하기
 
+
 ***
 
 ### 폴더 구조
