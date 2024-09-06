@@ -11,7 +11,6 @@ export const MM_PATH = '/mm';
 
 export const HR_PATH = '/hr';
 export const HR_DETAIL_PATH = (userId: string) => `${ userId }`;
-export const HR_UPDATE_PATH = (userId: string) => `${userId}/update`
 
 export const OTHERS_PATH = '*';
 
@@ -28,7 +27,6 @@ export const MM_ABSOLUTE_PATH = MM_PATH;
 
 export const HR_ABSOLUTE_PATH = HR_PATH;
 export const HR_DETAIL_ABSOLUTE_PATH = (userId: string) => `${HR_PATH}/${ HR_DETAIL_PATH(userId)}`;
-export const HR_UPDATE_ABSOLUTE_PATH = (userId: string) => `${HR_PATH}/${ HR_DETAIL_PATH(userId)}/update`;
 export const OTHERS_ABSOLUTE_PATH = OTHERS_PATH;
 
 
