@@ -1,14 +1,16 @@
 import axios, { AxiosResponse } from "axios"
 
 import { ResponseDto } from "./dto/response";
-import { IdCheckRequestDto, TelAuthRequestDto } from "./dto/request/auth";
+import { IdCheckRequestDto, TelAuthCheckRequestDto, TelAuthRequestDto } from "./dto/request/auth";
 // variable: API URL 상수 //
-const SENICARE_API_DOMAIN = "http://localhost:4000/"
+const SENICARE_API_DOMAIN = 'http://localhost:4000';
 
 const AUTH_MODULE_URL = `${SENICARE_API_DOMAIN}/api/v1/auth`;
+
 const ID_CHECK_API_URL = `${AUTH_MODULE_URL}/id-check`;
-const TEL_AUTH_API_URL = `${AUTH_MODULE_URL}/tel-auth-check`;
-const SIGN_UP_API_URL = `${ AUTH_MODULE_URL }/sign-up`;
+const TEL_AUTH_API_URL = `${AUTH_MODULE_URL}/tel-auth`;
+const TEL_AUTH_CHECK_API_URL = `${AUTH_MODULE_URL}/tel-auth-check`;
+const SIGN_UP_API_URL = `${AUTH_MODULE_URL}/sign-up`;
 const SIGN_IN_API_URL = `${AUTH_MODULE_URL}/sign-in`;
 
 
@@ -38,6 +40,14 @@ export const idCheckRequest = async (requestBody: IdCheckRequestDto) => {
 // function: tel auth api 요청 함수 //
 export const telAuthRequest = async (requestBody: TelAuthRequestDto) => {
     const responseBody = await axios.post(TEL_AUTH_API_URL, requestBody)
+        .then(responseDataHandler<ResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody;
+};
+
+// function: tel auth check 요청 함수 //
+export const telAuthCheckRequest = async (requestBody: TelAuthCheckRequestDto) => {
+    const responseBody = await axios.post(TEL_AUTH_CHECK_API_URL, requestBody)
         .then(responseDataHandler<ResponseDto>)
         .catch(responseErrorHandler);
     return responseBody;
