@@ -6,6 +6,8 @@ import { PostToolRequestDto } from 'src/apis/dto/request/tool';
 import { ResponseDto } from 'src/apis/dto/response';
 import { getToolListRequest, postToolRequest } from 'src/apis';
 import { access } from 'fs';
+import { Tool } from 'src/types';
+import { GetToolListResponseDto } from 'src/apis/dto/response/tool';
 // interface: 용품 등록 컴포넌트 Properties //
 interface PostBoxProps {
     unShow: () => void;
@@ -27,16 +29,16 @@ function PostBox({ unShow }: PostBoxProps) {
     // function: post tool response 처리 함수//
     const postToolResponse = (responseBody: ResponseDto | null) => {
         const message = !responseBody ? '서버에 문제가 있습니다.' :
-        responseBody.code === 'VF' ? '모두 입력해주세요.' :
-        responseBody.code === 'AF' ? '잘못된 접근입니다.' :
-        responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
-        
+            responseBody.code === 'VF' ? '모두 입력해주세요.' :
+                responseBody.code === 'AF' ? '잘못된 접근입니다.' :
+                    responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
+
         const isSuccessed = responseBody !== null && responseBody.code === 'SU';
         if (!isSuccessed) {
             alert(message)
             return;
         }
-        
+
         unShow();
     };
 
@@ -64,7 +66,8 @@ function PostBox({ unShow }: PostBoxProps) {
         const accessToken = cookies[ACCESS_TOKEN];
         if (!accessToken) return;
 
-        if (!name || !purpose || !count) {alert('모두 입력해주세요.'); return;
+        if (!name || !purpose || !count) {
+            alert('모두 입력해주세요.'); return;
         }
         const requestBody: PostToolRequestDto = {
             name, purpose, count: Number(count)
@@ -117,6 +120,28 @@ function PatchBox() {
             <div className='button disable'>취소</div></div>
     )
 }
+// component: 용품 리스트 아이템 컴포넌트 //
+function TableRow() {
+    //render: 용품 리스트 아이템 컴포넌트 렌더링 //
+    return (
+        <div className='tr'>
+            <div className='td-tool-number'>용품번호</div>
+            <div className='td-name'>용품명</div>
+            <div className='td-purpose'>용도</div>
+            <div className='td-count'>개수</div>
+            <div className='td-buttons'>
+                <div className='td-edit'>
+                    <div className='icon-button edit'></div>
+                </div>
+                <div className='td-delete'>
+                    <div className='icon-button trash'></div>
+                </div>
+            </div>
+
+        </div>
+    )
+
+}
 // component: 용품 관리 리스트 컴포넌트 //
 export default function MM() {
 
@@ -126,6 +151,30 @@ export default function MM() {
     const [showPostBox, setShowPostBox] = useState<boolean>(false);
     const [showPatchBox, setShowPatchBox] = useState<boolean>(false);
 
+    // function: get tool list response 처리 함수 //
+    const getToolListResponse = (responseBody: GetToolListResponseDto | ResponseDto | null) => {
+        const message = 
+        !responseBody ? '서버에 문제가 있습니다.' :
+        responseBody.code === 'AF' ? '잘못된 접근입니다.' :
+        responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
+        
+        
+        const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccessed) {
+            alert(message);
+            return;
+        }
+
+        const { tools } = responseBody as GetToolListResponseDto;
+        setToolList(tools);
+    
+    
+    
+    
+    };
+
+    // state: 용품 리스트 상태 //
+    const [toolList, setToolList] = useState<Tool[]>([]);
 
     // function: 등록 박스 뷰 상태 변경 함수//
     const unShowPostBox = () => { setShowPostBox(false); }
@@ -140,7 +189,7 @@ export default function MM() {
     useEffect(() => {
         const accessToken = cookies[ACCESS_TOKEN];
         if (!accessToken) return;
-        getToolListRequest(accessToken).then();
+        getToolListRequest(accessToken).then(getToolListResponse);
     }, []);
 
     // render : 용품 관리 리스트 컴포넌트 렌더링 //
@@ -154,8 +203,37 @@ export default function MM() {
                 {!showPostBox && !showPatchBox && <div className='button primary' onClick={onPostButtonClickHandler}>등록</div>}
 
             </div>
-            <div className='main'></div>
-            <div className='bottom'></div>
+            <div className='main'>
+                <div className='table'>
+                    <div className='th'>
+                        <div className='td-tool-number'>용품번호</div>
+                        <div className='td-name'>용품명</div>
+                        <div className='td-purpose'>용도</div>
+                        <div className='td-count'>개수</div>
+                        <div className='td-buttons'>
+                            <div className='td-edit'>수정</div>
+                            <div className='td-delete'>삭제</div>
+                        </div>
+
+                    </div>
+                    {toolList.map((tool, index) => <TableRow key={index} />)}
+                    
+                </div>
+            </div>
+            <div className='bottom'>
+                <div className='pagination-box'>
+                    <div className='round-left-button'></div>
+                    <div className='page-list'>
+                        <div className='page active'>1</div>
+                        <div className='page'>2</div>
+                    </div>
+                    <div className='round-right-button'></div>
+                </div>
+                <div className='search-box'>
+                    <input className='search-input' placeholder='검색어를 입력하세요.' />
+                    <div className='button disable'>검색</div>
+                </div>
+            </div>
         </div>
     )
 }
