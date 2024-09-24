@@ -93,7 +93,7 @@ const usePagination = <T>() => {
     // effect: 현재 섹션이 변경될 때 실행할 함수 //
     useEffect(() => {
         initPageList(totalPage);
-    }, [ currentSection]);
+    }, [totalCount, currentSection]);
 
     // effect: 현재 페이지가 변경될 때 실행할 함수 //
     useEffect(() => {
@@ -107,7 +107,6 @@ const usePagination = <T>() => {
         viewList,
         pageList,
         setTotalList,
-        initPageList,
         initViewList,
         onPrevSectionClickHandler,
         onNextSectionClickHandler,
