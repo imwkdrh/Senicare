@@ -4,20 +4,22 @@ import { useCookies } from 'react-cookie';
 import { ACCESS_TOKEN } from 'src/constants';
 import { PatchToolRequestDto, PostToolRequestDto } from 'src/apis/dto/request/tool';
 import { ResponseDto } from 'src/apis/dto/response';
-import { getToolListRequest, getToolRequest, patchToolRequest, postToolRequest } from 'src/apis';
+import {  deleteToolRequest, getToolListRequest, getToolRequest, patchToolRequest, postToolRequest } from 'src/apis';
 import { Tool } from 'src/types';
 import { GetToolListResponseDto, GetToolResponseDto } from 'src/apis/dto/response/tool';
 import { usePagination } from 'src/hooks';
 import Pagination from './../../components/Pagination/index';
+
 // interface: 용품 등록 컴포넌트 Properties //
 interface PostBoxProps {
     unShow: () => void;
+    getToolList: () => void;
 }
 
 
 
 // component: 용품 등록 컴포넌트 //
-function PostBox({ unShow }: PostBoxProps) {
+function PostBox({ unShow, getToolList }: PostBoxProps) {
 
     // state: cookie 상태 //
     const [cookies] = useCookies();
@@ -39,6 +41,7 @@ function PostBox({ unShow }: PostBoxProps) {
             alert(message)
             return;
         }
+        getToolList();
         unShow();
     };
 
@@ -101,10 +104,11 @@ function PostBox({ unShow }: PostBoxProps) {
 interface PatchBoxProps{
     toolNumber: number;
     unShow: () => void;
+    getToolList: () => void;
     
 }
 // component: 용품 수정 컴포넌트 //
-function PatchBox({ unShow, toolNumber }: PatchBoxProps) {
+function PatchBox({ unShow, toolNumber, getToolList }: PatchBoxProps) {
     
     // state: cookie 상태 //
     const [cookies] = useCookies();
@@ -149,6 +153,7 @@ function PatchBox({ unShow, toolNumber }: PatchBoxProps) {
                 alert(message);
                 return;
             }
+            getToolList();
             unShow();
 
         };
@@ -221,11 +226,41 @@ function PatchBox({ unShow, toolNumber }: PatchBoxProps) {
 // interface: 용품 리스트 아이템 컴포넌트 Properties //
 interface TableRowsProps {
     tool: Tool,
+    getToolList: () => void;
     onUpdateButtonClickHandler: (toolNumber: number) => void;
 }
 
 // component: 용품 리스트 아이템 컴포넌트 //
-function TableRow({ tool, onUpdateButtonClickHandler }: TableRowsProps) {
+function TableRow({ tool, onUpdateButtonClickHandler, getToolList }: TableRowsProps) {
+
+    // state: cookie 상태 //
+    const [cookies] = useCookies();
+
+    // function: delete tool response 처리 함수 //
+    const deleteToolResponse = (responseBody: ResponseDto|null) => {
+        const message = 
+            !responseBody ? '서버에 문제가 있습니다.' :
+                responseBody.code === 'VF' ? '잘못된 접근입니다.' :
+                    responseBody.code === 'AF' ? '잘못된 접근입니다.' :
+                        responseBody.code === 'NT' ? '존재하지 않는 용품입니다.' :
+                            responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
+        
+        const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccessed) {
+            alert(message);
+            return;
+        }
+        getToolList();
+    }
+
+    // event handler: 삭제 버튼 클릭 이벤트 처리 함수 //
+    const onDeleteButtonClickHandler = () => {
+        const isConfirm = window.confirm('정말로 삭제하시겠습니까?');
+        if (isConfirm) return;
+        const accessToken = cookies[ACCESS_TOKEN];
+        if (!accessToken) return;
+        deleteToolRequest(tool.toolNumber, accessToken).then(deleteToolResponse);
+    }
 
     //render: 용품 리스트 아이템 컴포넌트 렌더링 //
     return (
@@ -239,7 +274,7 @@ function TableRow({ tool, onUpdateButtonClickHandler }: TableRowsProps) {
                     <div className='icon-button edit' onClick={() => onUpdateButtonClickHandler(tool.toolNumber)}></div>
                 </div>
                 <div className='td-delete'>
-                    <div className='icon-button trash'></div>
+                    <div className='icon-button trash' onClick={onDeleteButtonClickHandler}></div>
                 </div>
             </div>
 
@@ -267,6 +302,13 @@ export default function MM() {
     const [originalList, setOriginalList] = useState<Tool[]>([]);
 
     const { currentPage, totalPage, totalCount, viewList, pageList, setTotalList, initViewList, onNextSectionClickHandler, onPageClickHandler, onPrevSectionClickHandler } = usePagination<Tool>();
+
+    // function: tool list 불러오기 함수 //
+    const getToolList = () => {
+        const accessToken = cookies[ACCESS_TOKEN];
+        if (!accessToken) return;
+        getToolListRequest(accessToken).then(getToolListResponse);
+    }
 
     // function: get tool list response 처리 함수 //
     const getToolListResponse = (responseBody: GetToolListResponseDto | ResponseDto | null) => {
@@ -321,17 +363,13 @@ export default function MM() {
     }
 
     // effect: 컴포넌트 로드시 용품 리스트 불러오기 함수 //
-    useEffect(() => {
-        const accessToken = cookies[ACCESS_TOKEN];
-        if (!accessToken) return;
-        getToolListRequest(accessToken).then(getToolListResponse);
-    }, []);
+    useEffect(getToolList, []);
 
     // render : 용품 관리 리스트 컴포넌트 렌더링 //
     return (
         <div id='mm-wrapper'>
-            {showPostBox && <PostBox unShow={unShowPostBox} />}
-            {showPatchBox && <PatchBox unShow={unShowPatchBox} toolNumber={patchToolNumber} />}
+            {showPostBox && <PostBox unShow={unShowPostBox} getToolList={ getToolList} />}
+            {showPatchBox && <PatchBox unShow={unShowPatchBox} getToolList={getToolList} toolNumber={patchToolNumber} />}
 
             <div className='top'>
                 <div className='top-text'>전체 <span className='emphasis'>{totalCount}건</span> | 페이지 <span className='emphasis'>{currentPage}/{totalPage}</span></div>
@@ -351,7 +389,7 @@ export default function MM() {
                         </div>
 
                     </div>
-                    {viewList.map((tool, index) => <TableRow key={index} tool={tool} onUpdateButtonClickHandler={onUpdateButtonClickHandler} />)}
+                    {viewList.map((tool, index) => <TableRow key={index} tool={tool} getToolList={getToolList} onUpdateButtonClickHandler={onUpdateButtonClickHandler} />)}
 
                 </div>
             </div>
