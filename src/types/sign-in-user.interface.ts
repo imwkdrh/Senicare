@@ -1,5 +1,5 @@
 export default interface SignInUser{
-    userId: String;
+    userId: string;
     name: string;
     telNumber: string;
 }

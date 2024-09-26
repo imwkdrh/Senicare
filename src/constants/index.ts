@@ -20,7 +20,7 @@ export const ROOT_ABSOLUTE_PATH = ROOT_PATH;
 export const AUTH_ABSOLUTE_PATH = AUTH_PATH;
 export const CS_ABSOLUTE_PATH = CS_PATH;
 
-export const CS_WRITE_ABSOLUTE_PATH = `${CS_PATH}${CS_WRITE_PATH}`;
+export const CS_WRITE_ABSOLUTE_PATH = `${CS_PATH}/${CS_WRITE_PATH}`;
 export const CS_DETAIL_ABSOLUTE_PATH = (customNumber: string | number) => `${CS_PATH}/${CS_DETAIL_PATH(customNumber)}`;
 export const CS_UPDATE_ABSOLUTE_PATH = (customNumber: string | number) => `${CS_PATH}/${CS_UPDATE_PATH(customNumber)}`;
 
