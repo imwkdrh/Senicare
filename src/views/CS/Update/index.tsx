@@ -8,10 +8,11 @@ import { useNavigate, useParams } from 'react-router';
 import { Address, useDaumPostcodePopup } from 'react-daum-postcode';
 import { GetNurseListResponseDto } from 'src/apis/dto/response/nurse';
 import { ResponseDto } from 'src/apis/dto/response';
-import { ACCESS_TOKEN, CS_ABSOLUTE_PATH } from 'src/constants';
-import { fileUploadRequest, getCustomerRequest, getNurseListRequest, postCustomerRequest } from 'src/apis';
-import { PostCustomerRequestDto } from 'src/apis/dto/request/customer';
+import { ACCESS_TOKEN, CS_ABSOLUTE_PATH, CS_DETAIL_ABSOLUTE_PATH } from 'src/constants';
+import { fileUploadRequest, getCustomerRequest, getNurseListRequest, patchCustomerRequest, postCustomerRequest } from 'src/apis';
+import { PatchCustomerRequestDto, PostCustomerRequestDto } from 'src/apis/dto/request/customer';
 import Pagination from 'src/components/Pagination';
+import { GetCustomerResponseDto } from 'src/apis/dto/response/customer';
 
 // variable: 기본 프로필 이미지 URL //
 const defaultProfileImageUrl = 'https://blog.kakaocdn.net/dn/4CElL/btrQw18lZMc/Q0oOxqQNdL6kZp0iSKLbV1/img.png';
@@ -71,6 +72,30 @@ export default function CSUpdate() {
         setLocation(sigungu);
 
     }
+    // function: get customer response 처리 함수 //
+    const getCustomerResponse = (responseBody: GetCustomerResponseDto | ResponseDto | null) => {
+        const message = !responseBody ? '서버에 문제가 있습니다.' :
+            responseBody.code === 'VF' ? '잘못된 접근입니다.' :
+            responseBody.code === 'AF' ? '잘못된 접근입니다.' :
+            responseBody.code === 'NC' ? '존재하지 않는 고객입니다.' :
+            responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
+
+        const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+        if (!isSuccessed) {
+            alert(message);
+            navigator(CS_ABSOLUTE_PATH);
+            return;
+        }
+
+        const { profileImage, name, birth, chargerId, chargerName, address ,location} = responseBody as GetCustomerResponseDto;
+        setPreviewUrl(profileImage);
+        setName(name);
+        setBirth(birth);
+        setCharger(chargerId);
+        setChargerName(chargerName);
+        setAddress(address);
+        setLocation(location);
+    }
 
     // function: get nurse list response 처리 함수 //
     const getNurseListResponse = (responseBody: GetNurseListResponseDto | ResponseDto | null) => {
@@ -88,13 +113,14 @@ export default function CSUpdate() {
         setOriginalList(nurses);
     }
 
-    // function: post customer response 처리 함수 //
-    const postCustomerResponse = (responseBody: ResponseDto | null) => {
+    // function: patch customer response 처리 함수 //
+    const patchCustomerResponse = (responseBody: ResponseDto | null) => {
         console.log(responseBody);
         const message = !responseBody ? '서버에 문제가 있습니다.' :
             responseBody.code === 'VF' ? '모두 입력해주세요.' :
                 responseBody.code === 'AF' ? '잘못된 접근입니다!' :
                     responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
+                        responseBody.code === 'NC' ? '존재하지 않는 고객입니다.':
                         responseBody.code === 'NI' ? '존재하지 않는 요양사입니다..' : '';
 
         const isSuccessed = responseBody !== null && responseBody.code === 'SU';
@@ -102,7 +128,8 @@ export default function CSUpdate() {
             alert(message);
             return;
         }
-        navigator(CS_ABSOLUTE_PATH);
+        if (!customerNumber) return;
+        navigator(CS_DETAIL_ABSOLUTE_PATH(customerNumber));
 
     };
 
@@ -196,8 +223,9 @@ export default function CSUpdate() {
         navigator(CS_ABSOLUTE_PATH);
     }
 
-    // event handler: 등록 버튼 클릭 이벤트 처리 //
-    const onPostClickHandler = async () => {
+    // event handler: 수정 버튼 클릭 이벤트 처리 //
+    const onUpdateClickHandler = async () => {
+        if (!customerNumber) return;
         if (!name || !birth || !charger || !address || !location) return;
         const accessToken = cookies[ACCESS_TOKEN];
         if (!accessToken) return;
@@ -208,13 +236,13 @@ export default function CSUpdate() {
             formData.append('file', profileImageFile);
             url = await fileUploadRequest(formData);
         }
-        url = url ? url : defaultProfileImageUrl;
+        url = url ? url : previewUrl;
 
-        const requestBody: PostCustomerRequestDto = {
+        const requestBody: PatchCustomerRequestDto = {
             profileImage: url,
             name, birth, charger, address, location
         };
-        postCustomerRequest(requestBody, accessToken).then(postCustomerResponse)
+        patchCustomerRequest(requestBody,customerNumber, accessToken).then(patchCustomerResponse)
     };
 
     // effect: 고객 번호가 바뀔 때 요양사 리스트, 고객정보 불러오기 함수 //
@@ -223,7 +251,7 @@ export default function CSUpdate() {
 
         const accessToken = cookies[ACCESS_TOKEN]
         if (!accessToken) return;
-        getCustomerRequest(customerNumber, accessToken);
+        getCustomerRequest(customerNumber, accessToken).then(getCustomerResponse);
         getNurseListRequest(accessToken).then(getNurseListResponse);
     }, [customerNumber])
 
@@ -276,7 +304,7 @@ export default function CSUpdate() {
 
             <div className='bottom'>
                 <div className='button primary' onClick={onListButtonClickHandler}>목록</div>
-                <div className='button second' onClick={onPostClickHandler}>등록</div>
+                <div className='button second' onClick={onUpdateClickHandler}>수정</div>
             </div>
             {modalOpen &&
                 <div className='modal'>
