@@ -108,7 +108,7 @@ interface PatchBoxProps{
     
 }
 // component: 용품 수정 컴포넌트 //
-function PatchBox({ unShow, toolNumber, getToolList }: PatchBoxProps) {
+function PatchBox({ toolNumber, unShow, getToolList }: PatchBoxProps) {
     
     // state: cookie 상태 //
     const [cookies] = useCookies();
@@ -231,7 +231,7 @@ interface TableRowsProps {
 }
 
 // component: 용품 리스트 아이템 컴포넌트 //
-function TableRow({ tool, onUpdateButtonClickHandler, getToolList }: TableRowsProps) {
+function TableRow({ tool, getToolList, onUpdateButtonClickHandler }: TableRowsProps) {
 
     // state: cookie 상태 //
     const [cookies] = useCookies();
@@ -256,7 +256,8 @@ function TableRow({ tool, onUpdateButtonClickHandler, getToolList }: TableRowsPr
     // event handler: 삭제 버튼 클릭 이벤트 처리 함수 //
     const onDeleteButtonClickHandler = () => {
         const isConfirm = window.confirm('정말로 삭제하시겠습니까?');
-        if (isConfirm) return;
+        if (!isConfirm) return;
+
         const accessToken = cookies[ACCESS_TOKEN];
         if (!accessToken) return;
         deleteToolRequest(tool.toolNumber, accessToken).then(deleteToolResponse);
@@ -335,20 +336,7 @@ export default function MM() {
     // function: 수정 박스 뷰 상태 변경 함수 //
     const unShowPatchBox = () => setShowPatchBox(false);
     
-    // event handler: 검색어 변경 이벤트 처리 함수 //
-    const onSearchWordChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        const { value } = event.target;
-        setSearchWord(value);
-    }
-
-    // event handler: 검색 버튼 클릭 이벤트 처리 함수 //
-    const onSearchButtonClickHandler = () => {
-        const searchedToolList = originalList.filter(tool => tool.name.includes(searchWord));
-        setTotalList(searchedToolList);
-        initViewList(searchedToolList);
-        
-
-    }
+    
 
     // event handler: 등록 버튼 클릭 이벤트 처리 함수 //
     const onPostButtonClickHandler = () => {
@@ -360,6 +348,20 @@ export default function MM() {
     const onUpdateButtonClickHandler = (toolNumber: number) => {
         setShowPatchBox(true);
         setPatchToolNumber(toolNumber);
+    }
+    // event handler: 검색어 변경 이벤트 처리 함수 //
+    const onSearchWordChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+        const { value } = event.target;
+        setSearchWord(value);
+    }
+
+    // event handler: 검색 버튼 클릭 이벤트 처리 함수 //
+    const onSearchButtonClickHandler = () => {
+        const searchedToolList = originalList.filter(tool => tool.name.includes(searchWord));
+        setTotalList(searchedToolList);
+        initViewList(searchedToolList);
+
+
     }
 
     // effect: 컴포넌트 로드시 용품 리스트 불러오기 함수 //
@@ -394,7 +396,12 @@ export default function MM() {
                 </div>
             </div>
             <div className='bottom'>
-                <Pagination pageList={pageList} currentPage={currentPage} onNextSectionClickHandler={onNextSectionClickHandler} onPageClickHandler={onPageClickHandler} onPrevSectionClickHandler={onPrevSectionClickHandler}/>
+                <Pagination
+                    pageList={pageList}
+                    currentPage={currentPage}
+                    onNextSectionClickHandler={onNextSectionClickHandler}
+                    onPageClickHandler={onPageClickHandler}
+                    onPrevSectionClickHandler={onPrevSectionClickHandler} />
                 <div className='search-box'>
                     <input className='search-input' placeholder='검색어를 입력하세요.' value={searchWord} onChange={onSearchWordChangeHandler} />
                     <div className='button disable' onClick={onSearchButtonClickHandler}>검색</div>
